@@ -1,0 +1,1153 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API do Sistema TEAM",
+        "description": "API para autenticação de usuários do Sistema TEAM, incluindo login e geração de tokens de acesso.",
+        "contact": {
+            "email": "suporte@sitesma.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/clientes": {
+            "post": {
+                "tags": [
+                    "Clientes"
+                ],
+                "summary": "Criar um novo cliente",
+                "operationId": "f5ecddc2c5b60eb5befc4a003ed53aca",
+                "requestBody": {
+                    "description": "Informações para criar um novo cliente",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "numero"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "João Silva"
+                                    },
+                                    "numero": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Cliente criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cliente criado com sucesso!"
+                                        },
+                                        "cliente": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "João Silva"
+                                                },
+                                                "numero": {
+                                                    "type": "string",
+                                                    "example": "1234567890"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validação falhou",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Validação falhou"
+                                        },
+                                        "messages": {
+                                            "properties": {
+                                                "nome": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo nome é obrigatório"
+                                                        }
+                                                    ]
+                                                },
+                                                "numero": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo número é obrigatório"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/clientes/list": {
+            "get": {
+                "tags": [
+                    "Clientes"
+                ],
+                "summary": "Listar clientes do usuário",
+                "operationId": "1e69044d7dc77d3806a8aaa14a957856",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número da página para paginar os resultados",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de clientes do usuário com paginação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": [
+                                                {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "nome": {
+                                                            "type": "string",
+                                                            "example": "João Silva"
+                                                        },
+                                                        "numero": {
+                                                            "type": "string",
+                                                            "example": "1234567890"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuário não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Não autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/clientes/search": {
+            "get": {
+                "tags": [
+                    "Clientes"
+                ],
+                "summary": "Buscar clientes do usuário por nome ou número com paginação",
+                "operationId": "eb8b545bc330a41289a6fb46ca7df08d",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número da página para paginar os resultados",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Termo para filtrar os clientes por nome ou número",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "João"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de clientes do usuário com paginação e filtro de busca",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": [
+                                                {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "nome": {
+                                                            "type": "string",
+                                                            "example": "João Silva"
+                                                        },
+                                                        "numero": {
+                                                            "type": "string",
+                                                            "example": "1234567890"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuário não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Não autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/clientes/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Clientes"
+                ],
+                "summary": "Excluir um cliente pelo ID",
+                "operationId": "3bf061a00ebe3d3c2912c06293610061",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do cliente a ser excluído",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cliente excluído com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cliente excluído com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cliente não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Cliente não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuário não autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Não autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/estatisticas-pagamentos": {
+            "get": {
+                "tags": [
+                    "Dashboard",
+                    "Pagamentos"
+                ],
+                "summary": "Listar estatísticas de pagamentos do usuário logado",
+                "description": "Exibe estatísticas de pagamento do usuário logado.",
+                "operationId": "7a74c0de97412b20430da0355cb19ebd",
+                "responses": {
+                    "200": {
+                        "description": "Estatísticas de pagamentos do usuário logado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total_nao_pago": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "total_pago": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "total_clientes": {
+                                            "type": "integer",
+                                            "example": 15
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Não autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/health": {
+            "get": {
+                "tags": [
+                    "Saúde da API"
+                ],
+                "summary": "Verifica a saúde da API",
+                "operationId": "5a8fb65580292cc5f3766d3b8ea510e2",
+                "responses": {
+                    "200": {
+                        "description": "API está funcionando corretamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "timestamp": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-03-31T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/version": {
+            "get": {
+                "tags": [
+                    "Versão"
+                ],
+                "summary": "Obtém a versão da API",
+                "operationId": "2f100abde8d1e79c30ab656c49414246",
+                "responses": {
+                    "200": {
+                        "description": "Retorna a versão da API",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "version": {
+                                            "type": "string",
+                                            "example": "1.0.0"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pagamentos": {
+            "post": {
+                "tags": [
+                    "Pagamentos"
+                ],
+                "summary": "Registrar um pagamento",
+                "operationId": "9a6bbd3bbce14356944648134a35ca16",
+                "requestBody": {
+                    "description": "Informações para registrar um pagamento",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cliente_id",
+                                    "mp_token",
+                                    "valor",
+                                    "nome",
+                                    "numero",
+                                    "instancia"
+                                ],
+                                "properties": {
+                                    "cliente_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "mp_token": {
+                                        "type": "string",
+                                        "example": "YOUR_MP_ACCESS_TOKEN"
+                                    },
+                                    "valor": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100.5
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Pagamento via QR Code"
+                                    },
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "João Silva"
+                                    },
+                                    "numero": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "instancia": {
+                                        "type": "string",
+                                        "example": "instancia_1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pagamento registrado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Histórico de pagamento criado com sucesso"
+                                        },
+                                        "payment_url": {
+                                            "type": "string",
+                                            "example": "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=123456"
+                                        },
+                                        "qr_code": {
+                                            "type": "string",
+                                            "example": "https://www.mercadopago.com.br/qr_code_url"
+                                        },
+                                        "qr_code_base64": {
+                                            "type": "string",
+                                            "example": "base64encodedQRcode"
+                                        },
+                                        "reference_id": {
+                                            "type": "string",
+                                            "example": "123456"
+                                        },
+                                        "historico_pag": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "João Silva"
+                                                },
+                                                "numero": {
+                                                    "type": "string",
+                                                    "example": "1234567890"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "não pago"
+                                                },
+                                                "cliente_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "descricao": {
+                                                    "type": "string",
+                                                    "example": "Pagamento via QR Code"
+                                                },
+                                                "reference_id": {
+                                                    "type": "string",
+                                                    "example": "123456"
+                                                },
+                                                "instancia": {
+                                                    "type": "string",
+                                                    "example": "instancia_1"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Validação falhou"
+                                        },
+                                        "messages": {
+                                            "properties": {
+                                                "cliente_id": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo cliente_id é obrigatório"
+                                                        }
+                                                    ]
+                                                },
+                                                "mp_token": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo mp_token é obrigatório"
+                                                        }
+                                                    ]
+                                                },
+                                                "valor": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo valor é obrigatório"
+                                                        }
+                                                    ]
+                                                },
+                                                "nome": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo nome é obrigatório"
+                                                        }
+                                                    ]
+                                                },
+                                                "numero": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo número é obrigatório"
+                                                        }
+                                                    ]
+                                                },
+                                                "instancia": {
+                                                    "type": "array",
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "example": "O campo instancia é obrigatório"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao criar o pagamento",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao criar pagamento: [erro específico]"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/historico-pagamentos": {
+            "get": {
+                "tags": [
+                    "Pagamentos"
+                ],
+                "summary": "Listar pagamentos do usuário logado",
+                "description": "Exibe os pagamentos do usuário logado.",
+                "operationId": "8071e21a22bf13f7ec9c6922bb687d57",
+                "responses": {
+                    "200": {
+                        "description": "Histórico de pagamentos do usuário logado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "nome": {
+                                                "type": "string",
+                                                "example": "João Silva"
+                                            },
+                                            "numero": {
+                                                "type": "string",
+                                                "example": "1234567890"
+                                            },
+                                            "descricao": {
+                                                "type": "string",
+                                                "example": "Pagamento via QR Code"
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "não pago"
+                                            },
+                                            "data": {
+                                                "type": "string",
+                                                "example": "2025-03-30"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Não autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/historico-pagamentos/{id}": {
+            "delete": {
+                "tags": [
+                    "Pagamentos"
+                ],
+                "summary": "Excluir um pagamento do histórico",
+                "operationId": "6cf8a29c50e05b8cec860142d76778a1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do histórico de pagamento a ser excluído",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Histórico de pagamento excluído com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Histórico de pagamento excluído com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Histórico de pagamento não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Histórico de pagamento não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao excluir o histórico de pagamento",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Erro ao excluir o histórico de pagamento"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Autenticar o usuário e gerar um token de acesso",
+                "operationId": "c5e838284c7f343f0e5e5fd589161c96",
+                "requestBody": {
+                    "description": "Credenciais do usuário para login",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "usuario@exemplo.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "senha123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login bem-sucedido, token gerado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "João Silva"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "usuario@exemplo.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "12|26RprUcJ8559ZPX3E15waxM6XjR6QEgEIiifuyCc64cc4e16"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciais inválidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Credenciais inválidas"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pagamentos/ultimas-24h": {
+            "get": {
+                "tags": [
+                    "Pagamentos"
+                ],
+                "summary": "Recupera pagamentos pendentes das últimas 24 horas",
+                "description": "Esta rota retorna os pagamentos com status 'nao_paga' das últimas 24 horas.",
+                "operationId": "a1edd86cde85a589740f9bf08171b88f",
+                "responses": {
+                    "200": {
+                        "description": "Retorna os pagamentos pendentes com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "description": "ID do pagamento",
+                                                "type": "integer"
+                                            },
+                                            "referencepix": {
+                                                "description": "Referencia do Pix",
+                                                "type": "string"
+                                            },
+                                            "status": {
+                                                "description": "Status do pagamento",
+                                                "type": "string"
+                                            },
+                                            "cliente_id": {
+                                                "description": "ID do cliente",
+                                                "type": "integer"
+                                            },
+                                            "reference_id": {
+                                                "description": "ID de referência",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhum pagamento encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pagamentos/atualizar-status": {
+            "post": {
+                "tags": [
+                    "Pagamentos"
+                ],
+                "summary": "Atualiza o status de pagamento para 'pago'",
+                "description": "Esta rota recebe o 'reference_id' e o 'status' de um pagamento e atualiza o status na tabela 'historicopag'.",
+                "operationId": "de4537085d8ce231ec713f39d2f274d5",
+                "parameters": [
+                    {
+                        "name": "reference_id",
+                        "in": "query",
+                        "description": "ID de referência do pagamento",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Novo status do pagamento",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status do pagamento atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Mensagem de sucesso",
+                                            "type": "string"
+                                        },
+                                        "numero": {
+                                            "description": "Número do pagamento atualizado",
+                                            "type": "string"
+                                        },
+                                        "nome": {
+                                            "description": "Nome do cliente do pagamento atualizado",
+                                            "type": "string"
+                                        },
+                                        "instancia": {
+                                            "description": "Instância do pagamento atualizado",
+                                            "type": "string"
+                                        },
+                                        "valor": {
+                                            "description": "Valor do pagamento atualizado",
+                                            "type": "string"
+                                        },
+                                        "descricao": {
+                                            "description": "Descrição do pagamento atualizado",
+                                            "type": "string"
+                                        },
+                                        "dataHoraCriacao": {
+                                            "description": "Data e hora de criação do pagamento",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pagamento não encontrado"
+                    },
+                    "400": {
+                        "description": "Dados inválidos ou não informados"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "description": "Autenticação via Bearer Token (JWT)",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Clientes",
+            "description": "Clientes"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard"
+        },
+        {
+            "name": "Pagamentos",
+            "description": "Pagamentos"
+        },
+        {
+            "name": "Saúde da API",
+            "description": "Saúde da API"
+        },
+        {
+            "name": "Versão",
+            "description": "Versão"
+        },
+        {
+            "name": "Autenticação",
+            "description": "Autenticação"
+        }
+    ]
+}
