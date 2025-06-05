@@ -1,39 +1,48 @@
 FROM php:8.3-fpm
 
-# Instala extensões e pacotes de sistema
+# Instala pacotes necessários do sistema e extensões PHP
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev libpq-dev \
-    libjpeg-dev libfreetype6-dev libicu-dev libmcrypt-dev libssl-dev \
-    nginx supervisor nodejs npm gnupg2 nano \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl bcmath intl \
-    && apt-get clean
+    libjpeg-dev libfreetype6-dev libicu-dev libssl-dev \
+    nginx supervisor gnupg2 nano \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+        pdo pdo_mysql mbstring zip exif pcntl bcmath intl gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instala Composer
+# Copia o Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Instala Node.js 18 e NPM
+# Instala Node.js 18 e npm mais recente
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
-    && npm install -g npm@latest
+    && npm install -g npm@latest \
+    && npm cache clean --force
 
-# Configura diretório de trabalho
+# Define o diretório de trabalho
 WORKDIR /var/www
 
-# Copia todos os arquivos da aplicação Laravel
+# Copia o projeto Laravel
 COPY . .
 
-# Instala dependências do PHP
+# Instala dependências PHP (Laravel)
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Instala dependências do Node
-RUN npm ci && chmod +x node_modules/.bin/vite && npm run build
+# ⚠️ NÃO executa build do Vite aqui, pois o `public/` já contém o build
+# Opcional: apenas garante permissões e Vite executável (se necessário para outros scripts)
+RUN chmod +x node_modules/.bin/vite || true
 
-# Permissões corretas
-RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
+# Ajusta permissões
+RUN chown -R www-data:www-data /var/www \
+    && find /var/www -type f -exec chmod 644 {} \; \
+    && find /var/www -type d -exec chmod 755 {} \;
 
-# Expõe a porta do Nginx
+# Expondo porta do Nginx
 EXPOSE 80
 
-# Inicia PHP-FPM e Nginx via Supervisor
+# Copia configuração do Supervisor (que inicia php-fpm + nginx)
 COPY ./docker/supervisord.conf /etc/supervisord.conf
+
+# Define comando de inicialização
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
