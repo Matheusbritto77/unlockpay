@@ -24,7 +24,7 @@ COPY . .
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
     && chown -R www-data:www-data /var/www \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 777 storage bootstrap/cache
 
 # Configura Apache para apontar para /var/www/public
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/public|' /etc/apache2/sites-available/000-default.conf
