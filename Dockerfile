@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-# Instala dependências básicas + extensões PHP necessárias
+# Instala dependências e extensões PHP
 RUN apt-get update && apt-get install -y \
     nginx curl zip unzip git libzip-dev libpng-dev libonig-dev libxml2-dev \
     libjpeg-dev libfreetype6-dev libicu-dev libssl-dev gnupg2 \
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql mbstring zip bcmath intl gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instala Composer (copiando da imagem oficial)
+# Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Instala Node.js 20
@@ -20,12 +20,14 @@ RUN sed -i 's|listen = .*|listen = /var/run/php/php-fpm.sock|' /usr/local/etc/ph
     && echo -e "listen.owner = www-data\nlisten.group = www-data" >> /usr/local/etc/php-fpm.d/www.conf
 
 # Configura NGINX
-RUN rm /etc/nginx/sites-enabled/default && \
+RUN rm -f /etc/nginx/sites-enabled/default && \
     echo 'server { \
         listen 80; \
         server_name localhost; \
         root /var/www/public; \
         index index.php index.html; \
+        access_log /var/log/nginx/access.log; \
+        error_log /var/log/nginx/error.log; \
         location / { try_files $uri $uri/ /index.php?$query_string; } \
         location ~ \.php$ { \
             include fastcgi_params; \
@@ -46,9 +48,8 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
     && chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-# Entrypoint: inicia PHP-FPM e NGINX juntos
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
+# Expõe porta
 EXPOSE 80
-ENTRYPOINT ["/entrypoint.sh"]
+
+# Entrypoint inline: inicia PHP-FPM e NGINX juntos
+CMD ["/bin/bash", "-c", "mkdir -p /var/run/php && php-fpm -D && nginx -g 'daemon off;'"]
