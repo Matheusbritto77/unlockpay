@@ -4,29 +4,28 @@ services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    volumes:
+      - ./www:/var/www
     ports:
       - "8000:80"
-    volumes:
-      - .:/var/www
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-    networks:
-      - laravel
+    depends_on:
+      - mysql
 
-  db:
+  mysql:
     image: mysql:8.0
+    container_name: laravel_mysql
     restart: always
-    environment:
-      MYSQL_DATABASE=laravel
-      MYSQL_ROOT_PASSWORD=root
-      MYSQL_USER=laravel
-      MYSQL_PASSWORD=secret
     ports:
       - "3306:3306"
-    networks:
-      - laravel
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
 
-networks:
-  laravel:
-    driver: bridge
+volumes:
+  db_data:
