@@ -42,7 +42,7 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R ug+rwx storage bootstrap/cache
 
 # Substitui a configuração padrão do Nginx pela personalizada
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Copia a configuração do Supervisor para gerenciar PHP-FPM e Nginx
 COPY ./docker/supervisord.conf /etc/supervisord.conf
