@@ -19,7 +19,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm cache clean --force
 
-# Define o diretório de trabalho
+# Define o diretório de trabalho da aplicação
 WORKDIR /var/www
 
 # Copia o código da aplicação para dentro do container
@@ -45,11 +45,14 @@ RUN chown -R www-data:www-data /var/www \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache
 
+# Substitui a configuração padrão do Nginx
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copia a configuração do Supervisor (para iniciar php-fpm e nginx juntos)
+COPY ./docker/supervisord.conf /etc/supervisord.conf
+
 # Expõe a porta padrão do Nginx
 EXPOSE 80
-
-# Copia a configuração do Supervisor
-COPY ./docker/supervisord.conf /etc/supervisord.conf
 
 # Comando de inicialização do container
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
