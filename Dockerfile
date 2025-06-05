@@ -1,34 +1,29 @@
 FROM php:8.3-fpm
 
+# Instala dependências
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev libpq-dev \
+    nginx curl zip unzip git nano libzip-dev libpng-dev libonig-dev libxml2-dev \
     libjpeg-dev libfreetype6-dev libicu-dev libssl-dev gnupg2 \
-    nginx nano nodejs \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl bcmath intl gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
-COPY . .
+# Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
-    && chmod +x node_modules/.bin/vite || true \
-    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
-    && chown -R www-data:www-data /var/www \
-    && find /var/www -type f -exec chmod 644 {} \; \
-    && find /var/www -type d -exec chmod 755 {} \; \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwx storage bootstrap/cache
+# Configura PHP-FPM
+RUN sed -i 's|listen = .*|listen = /var/run/php/php-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf \
+    && echo "listen.owner = www-data\nlisten.group = www-data" >> /usr/local/etc/php-fpm.d/www.conf
 
-RUN rm -f /etc/nginx/sites-enabled/default
-
+# Configuração mínima do NGINX
 RUN echo 'server { \
     listen 80; \
     server_name localhost; \
     root /var/www/public; \
-    index index.php index.html index.htm; \
+    index index.php index.html; \
     access_log /var/log/nginx/access.log; \
     error_log /var/log/nginx/error.log; \
     location / { try_files $uri $uri/ /index.php?$query_string; } \
@@ -41,17 +36,22 @@ RUN echo 'server { \
     location ~ /\.ht { deny all; } \
 }' > /etc/nginx/conf.d/default.conf
 
-RUN sed -i 's|listen = .*|listen = /var/run/php/php-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/listen.owner = .*/listen.owner = www-data/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/listen.group = .*/listen.group = www-data/' /usr/local/etc/php-fpm.d/www.conf
+# Código da aplicação
+WORKDIR /var/www
+COPY . .
 
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
+    && chmod +x node_modules/.bin/vite || true \
+    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /var/www \
+    && chmod -R ug+rwx storage bootstrap/cache
+
+# Cria entrypoint
 RUN echo '#!/bin/bash\n\
 set -e\n\
 mkdir -p /var/run/php\n\
-php-fpm &\n\
-nginx -g "daemon off;"' > /entrypoint.sh \
-    && chmod +x /entrypoint.sh
+php-fpm -F &\n\
+nginx -g "daemon off;"' > /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 80
-
 ENTRYPOINT ["/entrypoint.sh"]
