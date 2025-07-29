@@ -198,7 +198,7 @@ public function atualizarStatus(Request $request)
 
         // Cabeçalhos para a requisição ao Mercado Pago
         $headers = [
-            'Authorization' => 'Bearer APP_USR-7313766645380039-040310-18324d02b21a0cc59c217cf71be261fa-229395063',
+            'Authorization' => 'Bearer 310-18324d02b21a0cc59c217cf71be261fa-229395063',
             'Content-Type' => 'application/json',
             'X-Idempotency-Key' => Str::uuid()->toString(),
         ];
@@ -270,7 +270,7 @@ $paymentData = [
     }
 
     // 2. Consulta o Mercado Pago para conferir status real do pagamento
-    $accessToken = 'APP_USR-7313766645380039-040310-18324d02b21a0cc59c217cf71be261fa-229395063'; // Troque pelo seu token correto/gerencie via .env
+    $accessToken = 'APP_USR--040310-18324d02b21a0cc59c217cf71be261fa-229395063'; // Troque pelo seu token correto/gerencie via .env
 
     $client = new \GuzzleHttp\Client([
         'base_uri' => 'https://api.mercadopago.com/'
